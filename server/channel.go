@@ -46,6 +46,6 @@ func (c *Channel) RemoveUser(name string) error {
 	return errors.New("User not found in Userlist.")
 }
 
-// This function
-func (c *Channel) SyncUserlist() {
+func (c *Channel) UserList() []Users {
+	return c.Users
 }
