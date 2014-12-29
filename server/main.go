@@ -3,11 +3,17 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net"
 )
 
+var (
+	Room Channel
+)
+
 func main() {
+	Room = Channel{Name: "Test", Topic: "dööörp", Users: []User{}}
 	listener, err := net.Listen("tcp", ":1337")
 	if err != nil {
 		panic(err)
@@ -21,19 +27,41 @@ func main() {
 		}
 
 		// process message
-		go handleInputConnection(conn)
+		go handleMsg(conn)
 	}
 
 }
 
-func handleInputConnection(c net.Conn) {
+func handleMsg(c net.Conn) {
 	buf := make([]byte, 1024)
-	_, err := c.Read(buf)
+	n, err := c.Read(buf)
 	if err != nil {
 		log.Println(err.Error())
 		return
 	}
+	buf = buf[:n]
 
-	log.Printf("Debug: Input from Connection: %v\n", buf)
+	//msg := convertBuffer(buf)
+	var cmd Command
+	err = json.Unmarshal( /*msg*/ buf, &cmd)
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	switch cmd.Command {
+	case "JOIN":
+		if cmd.User != "" {
+			Room.AddUser(cmd.User, cmd.PublicKey, c)
+			log.Printf("%s added to %s\n", cmd.User, Room.Name)
+		} else {
+			log.Println("Could not join empty user.")
+		}
+	}
+
 	c.Write([]byte("dörp\n"))
+}
+
+// testable :)
+func convertBuffer(b []byte) string {
+	return string(b)
 }

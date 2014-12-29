@@ -22,12 +22,12 @@ type User struct {
 	JoinTime   time.Time
 }
 
-func (c *Channel) AddUser(name string, key otr.PublicKey, c net.Conn) error {
+func (c *Channel) AddUser(name string, key otr.PublicKey, cn net.Conn) error {
 	u := User{
 		Username:   name,
 		PublicKey:  key,
-		Connection: c,
-		JoinTime:   time.Now,
+		Connection: cn,
+		JoinTime:   time.Now(),
 	}
 
 	c.Users = append(c.Users, u)
@@ -46,6 +46,6 @@ func (c *Channel) RemoveUser(name string) error {
 	return errors.New("User not found in Userlist.")
 }
 
-func (c *Channel) UserList() []Users {
+func (c *Channel) UserList() []User {
 	return c.Users
 }
